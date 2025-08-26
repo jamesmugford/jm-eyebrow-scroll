@@ -17,7 +17,7 @@ else:
 # Constants
 DEFAULT_UDP_PORT = 11111
 SCROLL_THRESHOLD = 0.15   # Minimum eyebrow movement to trigger scrolling
-SCROLL_SPEED = 1         # Multiplier for scroll speed
+SCROLL_SPEED = 5         # Multiplier for scroll speed
 MAX_SCROLL = 20         # Maximum scroll speed
 
 def smooth_scroll(amount):
@@ -54,10 +54,10 @@ def start_face_tracking(port=DEFAULT_UDP_PORT):
         s.bind(("", port)) 
         while True: 
             data, addr = s.recvfrom(1024) 
-            print(f"Received {len(data)} bytes from {addr}")
+            #print(f"Received {len(data)} bytes from {addr}")
             # decode the bytes data into a PyLiveLinkFace object
             success, live_link_face = PyLiveLinkFace.decode(data)
-            print(f"Decode success: {success}")
+            #print(f"Decode success: {success}")
             if success:
                 # get eyebrow blendshape values
                 brow_down_left = live_link_face.get_blendshape(FaceBlendShape.BrowDownLeft)
@@ -73,14 +73,14 @@ def start_face_tracking(port=DEFAULT_UDP_PORT):
                 brow_down = (brow_down_left + brow_down_right) / 2
                 
                 # Calculate scroll amount based on eyebrow movement
-                scroll_amount = 0
+                scroll_amount = float(0)
                 if brow_up > SCROLL_THRESHOLD:
                     # Scroll up (positive value)
                     scroll_amount = min(SCROLL_SPEED * (brow_up - SCROLL_THRESHOLD), MAX_SCROLL)
                 elif brow_down > SCROLL_THRESHOLD:
                     # Scroll down (negative value)
                     scroll_amount = -min(SCROLL_SPEED * (brow_down - SCROLL_THRESHOLD), MAX_SCROLL)
-                
+                #scroll_amount = 1
                 # Apply scrolling if there's movement
                 if scroll_amount != 0:
                     smooth_scroll(scroll_amount)
@@ -89,7 +89,7 @@ def start_face_tracking(port=DEFAULT_UDP_PORT):
                 
                 print(f"Name: {live_link_face.name}")
                 print(f"Combined Brow Movement - Up: {brow_up:.2f}, Down: {brow_down:.2f}")
-                print(f"Scroll amount: {int(scroll_amount)}")
+                print(f"Scroll amount: {scroll_amount}")
                 print("-" * 40)
     except KeyboardInterrupt:
         print("Stopping face tracking...")
