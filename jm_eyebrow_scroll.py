@@ -17,7 +17,7 @@ else:
 # Constants
 DEFAULT_UDP_PORT = 11111
 SCROLL_THRESHOLD = 0.15   # Minimum eyebrow movement to trigger scrolling
-SCROLL_SPEED = 5         # Multiplier for scroll speed
+SCROLL_SPEED = 1         # Multiplier for scroll speed
 MAX_SCROLL = 20         # Maximum scroll speed
 
 def smooth_scroll(amount):
@@ -35,11 +35,12 @@ def smooth_scroll(amount):
         )
         Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
     else:
-        # Linux: Use xdotool for smooth scrolling
-        direction = "up" if amount < 0 else "down"
-        abs_amount = abs(int(amount))
+        # Linux: Use xdotool with button numbers (4=up, 5=down)
+        button = "5" if amount < 0 else "4"  # Reversed: 5 = scroll down, 4 = scroll up
+        abs_amount = abs(float(amount))
         if abs_amount > 0:
-            subprocess.run(["xdotool", "click", "--repeat", str(abs_amount), "--delay", "1", direction])
+            scroll_steps = max(1, int(abs_amount))
+            subprocess.run(["xdotool", "click", "--repeat", str(scroll_steps), "--delay", "1", button])
 
 def start_face_tracking(port=DEFAULT_UDP_PORT):
     print("Starting face tracking. Press Ctrl+C to stop.")
