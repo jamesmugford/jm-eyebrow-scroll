@@ -1,0 +1,54 @@
+# Eyebrow Scroll
+
+Control scrolling with your eyebrows using an iPhone with Face ID. Uses LiveLink Face tracking to enable hands-free scrolling through eyebrow movements.
+
+## Quick Start
+
+### Windows Users
+1. Download this repository
+2. Double-click `run_eyebrow_scroll.bat`
+
+### Linux Users
+1. Download this repository
+2. Open terminal in the repository folder
+3. Make the script executable:
+   ```bash
+   chmod +x run_eyebrow_scroll.sh
+   ```
+4. Run the script:
+   ```bash
+   ./run_eyebrow_scroll.sh
+   ```
+   Note: You may need to enter your password to install xdotool
+
+## Usage
+
+1. Start your LiveLink Face tracking app (e.g., on iPhone)
+2. Run the tool:
+```bash
+eyebrow-scroll
+```
+
+Or with a custom UDP port:
+```bash
+eyebrow-scroll --port 12345
+```
+
+## How it Works
+
+- Raise eyebrows to scroll up
+- Lower eyebrows to scroll down
+- The more you move your eyebrows, the faster it scrolls
+
+## Requirements
+
+- Python 3.6 or higher
+- LiveLink Face tracking app
+- Platform-specific requirements:
+  - Windows: No additional requirements
+  - macOS: No additional requirements
+  - Linux: xdotool (`sudo apt-get install xdotool`)
+
+## License
+
+GPL
