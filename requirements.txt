@@ -3,3 +3,4 @@ pylivelinkface
 pywin32; platform_system == 'Windows'
 # macOS-specific requirements
 pyobjc-framework-Quartz; platform_system == 'Darwin'
+python3-Xlib; platform_system == 'Linux'

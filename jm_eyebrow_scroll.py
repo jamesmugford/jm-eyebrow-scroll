@@ -3,6 +3,7 @@ import argparse
 import time
 import sys
 from pylivelinkface import PyLiveLinkFace, FaceBlendShape
+from xtest_wheel_pacer import XTestWheelPacer
 
 # Use platform-specific smooth scrolling
 if sys.platform == 'win32':
@@ -20,6 +21,19 @@ SCROLL_THRESHOLD = 0.15   # Minimum eyebrow movement to trigger scrolling
 SCROLL_SPEED = 1         # Multiplier for scroll speed
 MAX_SCROLL = 20         # Maximum scroll speed
 
+# At startup (Linux only):
+linuxScroller = XTestWheelPacer(
+    min_rate=4.0,
+    max_rate=40.0,
+    ease_power=2.2,
+    hysteresis=0.02,
+    max_ticks_per_flush=6,
+    flush_hz=50,
+    max_input=1.0
+)
+
+
+
 def smooth_scroll(amount):
     """
     Platform-specific smooth scrolling implementation
@@ -35,12 +49,14 @@ def smooth_scroll(amount):
         )
         Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
     else:
+        # Each frame after you compute scroll_amount:
+        linuxScroller.set_amount(scroll_amount)
         # Linux: Use xdotool with button numbers (4=up, 5=down)
-        button = "5" if amount < 0 else "4"  # Reversed: 5 = scroll down, 4 = scroll up
-        abs_amount = abs(float(amount))
-        if abs_amount > 0:
-            scroll_steps = max(1, int(abs_amount))
-            subprocess.run(["xdotool", "click", "--repeat", str(scroll_steps), "--delay", "1", button])
+        #button = "5" if amount < 0 else "4"  # Reversed: 5 = scroll down, 4 = scroll up
+        #abs_amount = abs(float(amount))
+        #if abs_amount > 0:
+        #    scroll_steps = max(1, int(abs_amount))
+        #    subprocess.run(["xdotool", "click", "--repeat", str(scroll_steps), "--delay", "1", button])
 
 def start_face_tracking(port=DEFAULT_UDP_PORT):
     print("Starting face tracking. Press Ctrl+C to stop.")
@@ -86,7 +102,7 @@ def start_face_tracking(port=DEFAULT_UDP_PORT):
                 if scroll_amount != 0:
                     smooth_scroll(scroll_amount)
                     # Tiny delay to prevent overwhelming the system
-                    time.sleep(0.016)  # approximately 60fps
+                    time.sleep(1/120)  # approximately 60fps
                 
                 print(f"Name: {live_link_face.name}")
                 print(f"Combined Brow Movement - Up: {brow_up:.2f}, Down: {brow_down:.2f}")
