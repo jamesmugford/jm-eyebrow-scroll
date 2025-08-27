@@ -50,7 +50,7 @@ def smooth_scroll(amount):
         Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
     else:
         # Each frame after you compute scroll_amount:
-        linuxScroller.set_amount(scroll_amount)
+        linuxScroller.set_amount(amount)
         # Linux: Use xdotool with button numbers (4=up, 5=down)
         #button = "5" if amount < 0 else "4"  # Reversed: 5 = scroll down, 4 = scroll up
         #abs_amount = abs(float(amount))

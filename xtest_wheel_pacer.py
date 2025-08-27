@@ -1,6 +1,9 @@
 # ---- add these imports at the top of your file (Linux path) ----
 import threading
-import os
+from dataclasses import dataclass
+
+from Xlib import X, display, error as xerror
+from Xlib.ext import xtest
 
 # ---- buffered scroller for X11 (python-xlib, no subprocesses) ----
 class XTestWheelPacer:
@@ -16,9 +19,14 @@ class XTestWheelPacer:
                  max_ticks_per_flush=6,   # cap per flush to avoid bursts
                  flush_hz=50,             # how often we flush (20ms)
                  max_input=1.0):          # value that maps to max_rate
-        from Xlib import X, display
+        
         self._X = X
+        
         self._d = display.Display()
+        # inside __init__ after creating self._d:
+        if not self._d.query_extension("XTEST").present:
+            raise RuntimeError("XTEST extension not available on this X server")
+        self._root = self._d.screen().root  # keep if you need root for other things
         self._root = self._d.screen().root
 
         self.min_rate = float(min_rate)
@@ -38,6 +46,7 @@ class XTestWheelPacer:
         self._thread.start()
 
     def set_amount(self, amount: float):
+        #print(f"set_amount")
         with self._lock:
             self._amount = float(amount)
 
@@ -46,13 +55,12 @@ class XTestWheelPacer:
         self._thread.join(timeout=1.0)
 
     # --- internals ---
-    def _emit_ticks(self, sign: int, n: int):
+    def _emit_ticks(self, sign: int, n: int) -> None:
         btn = 4 if sign > 0 else 5  # 4=up, 5=down
         for _ in range(n):
-            self._root.fake_input(self._X.ButtonPress, btn)
-            self._root.fake_input(self._X.ButtonRelease, btn)
-        # one sync for the batch
-        self._d.sync()
+            xtest.fake_input(self._d, self._X.ButtonPress, btn)
+            xtest.fake_input(self._d, self._X.ButtonRelease, btn)
+            self._d.sync()
 
     def _rate_for_amount(self, a: float) -> float:
         if abs(a) < self.hysteresis:
