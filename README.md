@@ -19,19 +19,19 @@ Control scrolling with your eyebrows using an iPhone with Face ID. Uses LiveLink
    ```bash
    ./run_eyebrow_scroll.sh
    ```
-   Note: You may need to enter your password to install xdotool
+   This creates a virtualenv and installs dependencies (including python-xlib).
 
 ## Usage
 
 1. Start your LiveLink Face tracking app (e.g., on iPhone)
-2. Run the tool:
+2. Run the tool via Python:
 ```bash
-eyebrow-scroll
+python jm_eyebrow_scroll.py
 ```
 
 Or with a custom UDP port:
 ```bash
-eyebrow-scroll --port 12345
+python jm_eyebrow_scroll.py --port 12345
 ```
 
 ## How it Works
@@ -44,10 +44,10 @@ eyebrow-scroll --port 12345
 
 - Python 3.6 or higher
 - LiveLink Face tracking app
-- Platform-specific requirements:
-  - Windows: No additional requirements
-  - macOS: No additional requirements
-  - Linux: xdotool (`sudo apt-get install xdotool`)
+- Platform-specific notes:
+  - Windows: uses Win32 mouse wheel events (pywin32)
+  - macOS: uses Quartz scroll events (pyobjc)
+  - Linux (X11): uses python-xlib to emit wheel events (installed via pip)
 
 ## License
 

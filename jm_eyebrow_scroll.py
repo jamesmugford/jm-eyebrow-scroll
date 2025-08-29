@@ -21,16 +21,22 @@ SCROLL_THRESHOLD = 0.15   # Minimum eyebrow movement to trigger scrolling
 SCROLL_SPEED = 1         # Multiplier for scroll speed
 MAX_SCROLL = 20         # Maximum scroll speed
 
-# At startup (Linux only):
-linuxScroller = XTestWheelPacer(
-    min_rate=4.0,
-    max_rate=40.0,
-    ease_power=2.2,
-    hysteresis=0.02,
-    max_ticks_per_flush=6,
-    flush_hz=50,
-    max_input=1.0
-)
+# Lazily create Linux scroller when needed (Linux only)
+_linux_scroller = None
+
+def _get_linux_scroller():
+    global _linux_scroller
+    if _linux_scroller is None:
+        _linux_scroller = XTestWheelPacer(
+            min_rate=4.0,
+            max_rate=40.0,
+            ease_power=2.2,
+            hysteresis=0.02,
+            max_ticks_per_flush=6,
+            flush_hz=50,
+            max_input=1.0
+        )
+    return _linux_scroller
 
 
 
@@ -50,7 +56,8 @@ def smooth_scroll(amount):
         Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
     else:
         # Each frame after you compute scroll_amount:
-        linuxScroller.set_amount(amount)
+        scroller = _get_linux_scroller()
+        scroller.set_amount(amount)
         # Linux: Use xdotool with button numbers (4=up, 5=down)
         #button = "5" if amount < 0 else "4"  # Reversed: 5 = scroll down, 4 = scroll up
         #abs_amount = abs(float(amount))
@@ -66,7 +73,7 @@ def start_face_tracking(port=DEFAULT_UDP_PORT):
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         print(f"Starting face tracking on UDP port {port}")
-        print("Move mouse to screen corner to abort")
+#        print("Move mouse to screen corner to abort")
         # open a UDP socket on all available interfaces with the given port
         s.bind(("", port)) 
         while True: 
